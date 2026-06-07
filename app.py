@@ -37,40 +37,37 @@ col3.metric("순이익 추정", f"{int(net_profit):,}원")
 st.divider()
 
 st.subheader("📝 새 내역 기록하기")
-with st.form("ledger_form", clear_on_submit=True):
-    date = st.date_input("날짜", datetime.date.today())
-    type_choice = st.selectbox("구분", ["매출", "매입"])
+
+date = st.date_input("날짜", datetime.date.today())
+type_choice = st.selectbox("구분", ["매출", "매입"])
+
+if type_choice == "매출":
+    category = st.selectbox("상세분류", ["현장매출", "배달(배민)", "배달(쿠팡이츠)", "단체예약매출", "기타 매출"])
+else:
+    category = st.selectbox("상세분류", ["재료비", "월세", "제세공과금", "기타 매입"])
     
-    if type_choice == "매출":
-        category = st.selectbox("상세분류", ["현장매출", "배달(배민)", "배달(쿠팡이츠)", "단체예약매출", "기타 매출"])
+amount = st.number_input("금액 (원)", min_value=0, step=1000)
+memo = st.text_input("메모", "")
+
+if st.button("장부에 기록하기"):
+    if "여기에" in API_URL:
+        st.warning("구글 앱스 스크립트 URL을 먼저 설정해주세요.")
     else:
-        category = st.selectbox("상세분류", ["재료비", "월세", "제세공과금", "기타 매입"])
-        
-    amount = st.number_input("금액 (원)", min_value=0, step=1000)
-    memo = st.text_input("메모", "")
-    
-    submitted = st.form_submit_button("장부에 기록하기")
-    
-    if submitted:
-        if "여기에" in API_URL:
-            st.warning("구글 앱스 스크립트 URL을 먼저 설정해주세요.")
-        else:
-            payload = {
-                "date": str(date),
-                "type": type_choice,
-                "category": category,
-                "amount": int(amount),
-                "memo": memo
-            }
-            try:
-                response = requests.post(API_URL, json=payload)
-                if response.status_code == 200:
-                    st.success("장부에 성공적으로 기록되었습니다!")
-                    st.rerun()
-                else:
-                    st.error("기록에 실패했습니다.")
-            except Exception as e:
-                st.error(f"오류 발생: {e}")
+        payload = {
+            "date": str(date),
+            "type": type_choice,
+            "category": category,
+            "amount": int(amount),
+            "memo": memo
+        }
+        try:
+            response = requests.post(API_URL, json=payload)
+            if response.status_code == 200:
+                st.success("성공적으로 기록되었습니다. 화면을 위에서 아래로 당겨 새로고침하면 아래 표에 반영됩니다.")
+            else:
+                st.error("기록에 실패했습니다.")
+        except Exception as e:
+            st.error(f"오류 발생: {e}")
 
 st.divider()
 
