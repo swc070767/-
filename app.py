@@ -49,7 +49,7 @@ with st.form("ledger_form", clear_on_submit=True):
     amount = st.number_input("금액 (원)", min_value=0, step=1000)
     memo = st.text_input("메모", "")
     
-    submitted = st.form_submit_with_button("장부에 기록하기")
+    submitted = st.form_submit_button("장부에 기록하기")
     
     if submitted:
         if "여기에" in API_URL:
